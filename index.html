@@ -70,7 +70,7 @@
     .logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; color: var(--cream); line-height: 1; }
     .logo-sub { font-family: 'Playfair Display', serif; font-style: italic; font-size: 10px; color: var(--cream3); letter-spacing: 0.5px; margin-top: 3px; }
     .header-right { display: flex; gap: 8px; align-items: center; }
-    .date-badge { font-size: 11px; color: var(--ink2); background: var(--cream2); padding: 5px 11px; border-radius: 5px; font-weight: 600; letter-spacing: 0.3px; }
+    .date-badge { font-size: 12px; color: var(--cream); background: rgba(240,232,216,0.08); border: 1px solid var(--cream3); padding: 6px 14px; border-radius: 99px; font-weight: 600; letter-spacing: 0.4px; }
     .icon-btn { background: transparent; border: 1px solid var(--cream3); border-radius: 6px; padding: 6px 10px; font-size: 14px; cursor: pointer; color: var(--cream); transition: opacity .2s; }
     .icon-btn:hover { opacity: .75; }
     .icon-btn:active { opacity: .5; }
@@ -83,12 +83,18 @@
     body.offline #offline-banner { display: block; }
 
     /* ── PENDING SYNC BADGE ── */
-    .sync-badge {
-      background: var(--amber); color: white; border-radius: 99px;
-      font-size: 10px; font-weight: 700; padding: 2px 6px;
-      display: none; vertical-align: middle; margin-left: 4px;
-    }
+    .sync-badge { background: var(--amber); color: white; border-radius: 99px; font-size: 10px; font-weight: 700; padding: 2px 6px; display: none; vertical-align: middle; margin-left: 4px; }
     .sync-badge.show { display: inline; }
+    .sync-icon-btn {
+      background: white; border: 1.5px solid var(--border); border-radius: 50%;
+      width: 36px; height: 36px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--ink2); transition: all .2s; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      position: relative;
+    }
+    .sync-icon-btn:hover { background: var(--cream2); border-color: var(--ink3); transform: rotate(15deg); }
+    .sync-icon-btn:active { transform: scale(.92); }
+    .sync-icon-btn.syncing svg { animation: spin .9s linear infinite; }
+    .sync-icon-btn .sync-badge { position: absolute; top: -4px; right: -4px; margin-left: 0; }
 
     /* ── TABS ── */
     .tabs { display: flex; background: var(--ink2); position: sticky; top: var(--header-h); z-index: 99; border-bottom: 2px solid var(--ink); height: var(--tabs-h); }
@@ -131,17 +137,20 @@
     }
     .date-bar label { font-size: 12px; font-weight: 600; color: var(--ink3); }
     .date-input {
-      background: white; border: 1.5px solid var(--border); border-radius: 8px;
-      padding: 7px 11px; font-family: 'Inter', sans-serif; font-size: 13px;
-      color: var(--ink); outline: none; cursor: pointer; transition: border-color .15s;
+      background: white; border: 1.5px solid var(--border); border-radius: 99px;
+      padding: 8px 16px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      color: var(--ink); outline: none; cursor: pointer; transition: all .15s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
     }
     .date-input:focus { border-color: var(--ink2); }
+    .date-input:hover { border-color: var(--ink3); }
     .date-today-btn {
-      background: var(--cream2); border: 1.5px solid var(--border); border-radius: 8px;
-      padding: 7px 12px; font-size: 11px; font-weight: 600; color: var(--ink2);
+      background: var(--ink); color: var(--cream); border: 1.5px solid var(--ink); border-radius: 99px;
+      padding: 8px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
       cursor: pointer; transition: all .15s;
     }
-    .date-today-btn:hover { background: var(--cream3); }
+    .date-today-btn:hover { background: var(--ink2); }
+    .date-today-btn:active { opacity: .8; }
     .date-editing-badge {
       background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber);
       border-radius: 5px; padding: 4px 10px; font-size: 11px; font-weight: 600;
@@ -217,9 +226,13 @@
     .btn-secondary:hover  { background: var(--cream2); }
     .btn-secondary:active { opacity: .7; }
     .btn:disabled  { opacity: .45; cursor: not-allowed; transform: none !important; }
-    .btn-sm { background: white; border: 1.5px solid var(--border); border-radius: 6px; padding: 7px 13px; font-size: 11px; font-weight: 600; color: var(--ink2); cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; transition: all .15s; }
-    .btn-sm:hover  { background: var(--cream2); border-color: var(--ink3); }
-    .btn-sm:active { opacity: .7; }
+    .btn-sm { background: white; border: 1.5px solid var(--border); border-radius: 99px; padding: 8px 16px; font-size: 11px; font-weight: 700; color: var(--ink2); cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all .15s; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    .btn-sm:hover  { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,.1); }
+    .btn-sm:active { transform: scale(.97); }
+    .btn-sm.present-btn { border-color: var(--green); color: var(--green); }
+    .btn-sm.present-btn:hover { background: var(--green-bg); }
+    .btn-sm.absent-btn { border-color: var(--red); color: var(--red); }
+    .btn-sm.absent-btn:hover { background: var(--red-bg); }
     .action-bar-desktop { display: none; }
     @media (min-width: 900px) {
       .action-bar-desktop { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
@@ -291,7 +304,7 @@
     .steps li b { color: var(--ink); }
 
     /* ── TOAST ── */
-    #toast { position: fixed; bottom: calc(20px + var(--safe-b)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--cream); padding: 10px 22px; border-radius: 99px; font-size: 13px; font-weight: 600; opacity: 0; transition: all .3s; z-index: 999; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+    #toast { position: fixed; bottom: calc(20px + var(--safe-b)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--cream); padding: 10px 22px; border-radius: 16px; font-size: 13px; font-weight: 600; opacity: 0; transition: all .3s; z-index: 999; max-width: 90vw; white-space: pre-wrap; word-break: break-word; text-align: center; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
     #toast.show    { opacity: 1; transform: translateX(-50%) translateY(0); }
     #toast.error   { background: var(--red); color: white; }
     #toast.success { background: var(--green); color: white; }
@@ -330,7 +343,6 @@
   </div>
   <div class="header-right">
     <div class="date-badge" id="todayBadge"></div>
-    <button class="icon-btn" onclick="syncAll()" title="Sync">🔄<span class="sync-badge" id="syncBadge"></span></button>
   </div>
 </header>
 
@@ -358,10 +370,18 @@
 
       <div class="mark-header">
         <div class="mark-title">Class Attendance &nbsp;<span class="mark-count" id="countLabel">0 present</span></div>
+        <button class="sync-icon-btn" onclick="syncAll()" title="Sync">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span class="sync-badge" id="syncBadge"></span>
+        </button>
       </div>
       <div class="quick-btns">
-        <button class="btn-sm" onclick="markAll()">✓ All Present</button>
-        <button class="btn-sm" onclick="markAllAbsent()">✗ All Absent</button>
+        <button class="btn-sm present-btn" onclick="markAll()">✓ All Present</button>
+        <button class="btn-sm absent-btn" onclick="markAllAbsent()">✗ All Absent</button>
         <button class="btn-sm" onclick="clearAll()">↺ Reset</button>
       </div>
       <div id="studentGrid" class="student-grid"></div>
@@ -728,7 +748,40 @@ function toggle(name) {
 }
 function markAll()       { students.forEach(s => attendance[s] = 'present'); renderGrid(); }
 function markAllAbsent() { students.forEach(s => attendance[s] = 'absent');  renderGrid(); }
-function clearAll()      { students.forEach(s => attendance[s] = 'unmarked'); renderGrid(); }
+
+async function clearAll() {
+  if (!confirm(`Reset attendance for ${activeDate}?\n\nThis clears all marks for this date and removes any saved record for it (local + Google Sheet).`)) return;
+
+  // Reset in-memory marks
+  students.forEach(s => attendance[s] = 'unmarked');
+  renderGrid();
+
+  // Remove this date's record locally
+  const hadRecord = records.some(r => r.date === activeDate);
+  records = records.filter(r => r.date !== activeDate);
+  localStorage.setItem('ts_records', JSON.stringify(records));
+
+  // Remove any pending queued save for this date
+  const hadQueued = syncQueue.some(q => q.date === activeDate);
+  syncQueue = syncQueue.filter(q => q.date !== activeDate);
+  saveQueue();
+
+  renderDashboard();
+
+  if (!hadRecord && !hadQueued) {
+    showToast('✓ Reset', 'success');
+    return;
+  }
+
+  // Remove from Google Sheet too
+  if (config.url && navigator.onLine) {
+    const data = await gasGet({ action: 'deleteDate', date: activeDate });
+    if (data.ok) showToast('✓ Reset — removed from Sheet', 'success');
+    else showToast('✓ Reset locally — Sheet error: ' + (data.error || 'unknown'), 'error');
+  } else {
+    showToast(navigator.onLine ? '✓ Reset' : '✓ Reset — will need to sync delete later', 'success');
+  }
+}
 
 function archiveStudent(name, e) {
   if (e) e.preventDefault();
@@ -812,9 +865,9 @@ async function saveAttendance() {
     renderGrid(); return;
   }
 
-  const ok = await gasPost({ action: 'save', key: config.key || 'takshashila2025', records: rows });
+  const res = await gasPost({ action: 'save', key: config.key || 'takshashila2025', records: rows });
   setSaveBtns('Save Attendance', false);
-  if (ok) {
+  if (res.ok) {
     showToast('✓ Saved to Google Sheet', 'success');
   } else {
     // Failed — add to queue
@@ -831,8 +884,8 @@ async function retrySyncQueue() {
   showToast(`Syncing ${syncQueue.length} pending save(s)…`);
   const remaining = [];
   for (const item of syncQueue) {
-    const ok = await gasPost({ action: 'save', key: config.key || 'takshashila2025', records: item.records });
-    if (!ok) remaining.push(item);
+    const res = await gasPost({ action: 'save', key: config.key || 'takshashila2025', records: item.records });
+    if (!res.ok) remaining.push(item);
   }
   syncQueue = remaining;
   saveQueue();
@@ -886,10 +939,10 @@ function gasPost(body) {
       enc:      body._compact ? 'b64' : ''
     });
     const script = document.createElement('script');
-    const timer = setTimeout(() => { cleanup(); resolve(false); }, 25000);
+    const timer = setTimeout(() => { cleanup(); resolve({ ok: false }); }, 25000);
     function cleanup() { clearTimeout(timer); delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); }
-    window[cbName] = (data) => { cleanup(); resolve(data.ok || false); };
-    script.onerror  = () => { cleanup(); resolve(false); };
+    window[cbName] = (data) => { cleanup(); resolve(data || { ok: false }); };
+    script.onerror  = () => { cleanup(); resolve({ ok: false }); };
     script.src = config.url + '?' + qs.toString();
     document.body.appendChild(script);
   });
@@ -930,8 +983,11 @@ async function fetchRecords(silent = false) {
 }
 
 async function syncAll() {
+  const btn = document.querySelector('.sync-icon-btn');
+  if (btn) btn.classList.add('syncing');
   await retrySyncQueue();
   await fetchRecords();
+  if (btn) btn.classList.remove('syncing');
 }
 
 async function saveConfig() {
@@ -983,8 +1039,17 @@ async function saveStudents() {
   students  = raw.split('\n').map(s => s.trim()).filter(Boolean);
   localStorage.setItem('ts_students', JSON.stringify(students));
   loadAttendanceForDate(activeDate); renderGrid();
-  showToast(`✓ ${students.length} students saved`, 'success');
-  if (config.url) await gasPost({ action: 'saveStudents', key: config.key || 'takshashila2025', students, alumni });
+  if (config.url) {
+    const res = await gasPost({ action: 'saveStudents', key: config.key || 'takshashila2025', students, alumni });
+    if (res.ok) {
+      const h = (res.hidden || []).length, s = (res.shown || []).length;
+      showToast(`✓ ${students.length} students saved — hid ${h}, showed ${s} (sheets: ${(res.sheets||[]).join(', ') || 'none'})`, 'success');
+    } else {
+      showToast(`✓ ${students.length} students saved locally — sheet error: ${res.error || 'unknown'}`, 'error');
+    }
+  } else {
+    showToast(`✓ ${students.length} students saved`, 'success');
+  }
 }
 
 async function importHistoricalData() {
@@ -1013,8 +1078,8 @@ async function importHistoricalData() {
       btn.innerHTML = `<span class="spinner"></span>Importing ${done}/${total}…`;
       fill.style.width = Math.round(done / total * 100) + '%';
       const compact = chunk.map(r => `${r.date}|${r.name}|${r.status === 'present' ? 'P' : 'A'}`).join(',');
-      const ok = await gasPost({ action: 'importBulk', key: config.key || 'takshashila2025', data: compact, _compact: true });
-      if (!ok) { showToast(`Import failed at record ${i + 1} — try again`, 'error'); resetImportBtn(); return; }
+      const res = await gasPost({ action: 'importBulk', key: config.key || 'takshashila2025', data: compact, _compact: true });
+      if (!res.ok) { showToast(`Import failed at record ${i + 1} — try again`, 'error'); resetImportBtn(); return; }
     }
     fill.style.width = '100%';
     setTimeout(() => { bar.style.display = 'none'; fill.style.width = '0%'; }, 1200);
@@ -1175,7 +1240,13 @@ function resetLocalData() {
   showToast('✓ Local data cleared', 'success');
 }
 
-function todayStr() { return new Date().toISOString().split('T')[0]; }
+function todayStr() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 let _tt;
 function showToast(msg, type = '') {
@@ -1183,7 +1254,7 @@ function showToast(msg, type = '') {
   t.textContent = msg;
   t.className = 'show' + (type ? ' ' + type : '');
   clearTimeout(_tt);
-  _tt = setTimeout(() => t.className = '', 2800);
+  _tt = setTimeout(() => t.className = '', type === 'error' ? 6000 : 2800);
 }
 </script>
 </body>

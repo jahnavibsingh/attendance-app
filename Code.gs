@@ -1,4 +1,4 @@
-// ── TAKSHASHILA — Attendance Backend (v10) ──
+// ── TAKSHASHILA — Attendance Backend (v13) ──
 // Deploy as Web App: Execute as "Me", Access "Anyone"
 //
 // Layout: one tab per year ("2025", "2026" …)
@@ -162,7 +162,8 @@ function doGet(e) {
       for (let i = 0; i < maxRows; i++) {
         sheet.appendRow([active[i] || "", alumnis[i] || ""]);
       }
-      return json({ ok: true }, callback);
+      const visInfo = updateColumnVisibility(ss, active, alumnis);
+      return json({ ok: true, hidden: visInfo.hidden, shown: visInfo.shown, sheets: visInfo.sheets }, callback);
     }
 
     // ── Fetch students ──
@@ -203,6 +204,28 @@ function doGet(e) {
       });
 
       return json({ ok: true, records }, callback);
+    }
+
+    // ── Delete a single date's row ──
+    if (action === "deleteDate") {
+      const dateStr = e.parameter.date;
+      if (!dateStr) return json({ ok: false, error: "No date provided" }, callback);
+
+      const sheet = ss.getSheetByName(String(dateStr).split('-')[0]);
+      if (!sheet) return json({ ok: true, deleted: false }, callback);
+
+      const lastRow = sheet.getLastRow();
+      if (lastRow >= 2) {
+        const dates = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+        for (let i = 0; i < dates.length; i++) {
+          if (formatDate(dates[i][0]) === dateStr) {
+            sheet.deleteRow(i + 2);
+            styleSheet(sheet);
+            return json({ ok: true, deleted: true }, callback);
+          }
+        }
+      }
+      return json({ ok: true, deleted: false }, callback);
     }
 
     // ── Delete all data ──
@@ -302,4 +325,36 @@ function getOrCreate(ss, name, headers) {
     sheet.appendRow(headers);
   }
   return sheet;
+}
+
+// Hide columns for alumni, show columns for active students, across all year sheets
+function updateColumnVisibility(ss, active, alumnis) {
+  const activeSet = new Set(active.map(s => String(s).trim()));
+  const alumniSet = new Set(alumnis.map(s => String(s).trim()));
+
+  let hidden = [];
+  let shown  = [];
+  let sheets = [];
+
+  getAllYearSheets(ss).forEach(sheet => {
+    sheets.push(sheet.getName());
+    const lastCol = sheet.getLastColumn();
+    if (lastCol < 2) return;
+    const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+
+    for (let c = 1; c < headers.length; c++) { // skip col 1 (Date)
+      const name = String(headers[c]).trim();
+      if (!name) continue;
+      const col = c + 1;
+      if (alumniSet.has(name)) {
+        sheet.hideColumns(col);
+        hidden.push(sheet.getName() + ":" + name);
+      } else if (activeSet.has(name)) {
+        sheet.showColumns(col);
+        shown.push(sheet.getName() + ":" + name);
+      }
+    }
+  });
+
+  return { hidden, shown, sheets };
 }
