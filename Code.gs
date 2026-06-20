@@ -1,4 +1,4 @@
-// ── TAKSHASHILA — Attendance Backend (v13) ──
+// ── TAKSHASHILA — Attendance Backend (v19) ──
 // Deploy as Web App: Execute as "Me", Access "Anyone"
 //
 // Layout: one tab per year ("2025", "2026" …)
@@ -53,6 +53,18 @@ function getOrCreateDateRow(sheet, dateStr) {
     for (let i = 0; i < dates.length; i++) {
       if (formatDate(dates[i][0]) === dateStr) return i + 2;
     }
+    // Find correct insert position for descending order (newest first)
+    let insertAt = lastRow + 1; // default: end (oldest so far)
+    for (let i = 0; i < dates.length; i++) {
+      const existing = formatDate(dates[i][0]);
+      if (dateStr > existing) { insertAt = i + 2; break; }
+    }
+    sheet.insertRowBefore(insertAt);
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const cell = sheet.getRange(insertAt, 1);
+    cell.setValue(new Date(y, m - 1, d));
+    cell.setNumberFormat("d/M/yy");
+    return insertAt;
   }
   const newRow = lastRow + 1;
   const [y, m, d] = dateStr.split('-').map(Number);
@@ -85,7 +97,7 @@ function doGet(e) {
 
       records.forEach(r => {
         const col = getOrCreateStudentCol(sheet, r.name);
-        sheet.getRange(dateRow, col).setValue(r.status === "present" ? "P" : "A");
+        sheet.getRange(dateRow, col).setValue(r.status === "present" ? "P" : r.status === "noclass" ? "-" : "A");
       });
 
       styleSheet(sheet);
@@ -103,7 +115,7 @@ function doGet(e) {
       if (raw && raw[0] !== '{' && raw[0] !== '[') {
         records = raw.split(',').filter(Boolean).map(r => {
           const [date, name, s] = r.split('|');
-          return { date: date.trim(), name: name.trim(), status: s.trim() === 'P' ? 'present' : 'absent' };
+          return { date: date.trim(), name: name.trim(), status: s.trim() === 'P' ? 'present' : s.trim() === '-' ? 'noclass' : 'absent' };
         });
       } else {
         records = JSON.parse(raw).records;
@@ -120,8 +132,8 @@ function doGet(e) {
       Object.entries(byYear).forEach(([yr, recs]) => {
         const sheet = getYearSheet(ss, yr + '-01-01');
 
-        // Pre-create all date rows and student cols
-        const dates = [...new Set(recs.map(r => r.date))].sort();
+        // Pre-create all date rows and student cols (descending so newest insert first, less row-shifting)
+        const dates = [...new Set(recs.map(r => r.date))].sort().reverse();
         const names = [...new Set(recs.map(r => r.name))];
         const dateRowMap = {};
         const nameColMap = {};
@@ -139,7 +151,7 @@ function doGet(e) {
           const row = dateRowMap[r.date] - 2;
           const col = nameColMap[r.name]  - 2;
           if (row >= 0 && col >= 0 && row < values.length && col < values[0].length) {
-            values[row][col] = r.status === "present" ? "P" : "A";
+            values[row][col] = r.status === "present" ? "P" : r.status === "noclass" ? "-" : "A";
           }
         });
 
@@ -196,8 +208,8 @@ function doGet(e) {
           for (let c = 1; c < headers.length; c++) {
             const name = String(headers[c]).trim();
             const val  = String(data[r][c]).trim().toUpperCase();
-            if (name && (val === "P" || val === "A")) {
-              records.push({ date: dateStr, name, status: val === "P" ? "present" : "absent" });
+            if (name && (val === "P" || val === "A" || val === "-")) {
+              records.push({ date: dateStr, name, status: val === "P" ? "present" : val === "A" ? "absent" : "noclass" });
             }
           }
         }
@@ -226,6 +238,20 @@ function doGet(e) {
         }
       }
       return json({ ok: true, deleted: false }, callback);
+    }
+
+    // ── One-time: re-sort existing rows so newest date is first ──
+    if (action === "sortDatesDescending") {
+      let sortedSheets = [];
+      getAllYearSheets(ss).forEach(sheet => {
+        const lastRow = sheet.getLastRow();
+        const lastCol = sheet.getLastColumn();
+        if (lastRow < 3 || lastCol < 1) return; // nothing to sort
+        const range = sheet.getRange(2, 1, lastRow - 1, lastCol);
+        range.sort({ column: 1, ascending: false });
+        sortedSheets.push(sheet.getName());
+      });
+      return json({ ok: true, sheets: sortedSheets }, callback);
     }
 
     // ── Delete all data ──
